@@ -10,6 +10,9 @@ HomeSync uses a folder in your dropbox (`~/Dropbox/HomeSync` by default) to stor
 
 ## Synopsis
 
+    $ homesync setup
+      # creates a launch agent to monitor changes of preferences files
+
     $ homesync add ~/path/to/file
     $ homesync add ~/path/to/directory
       # decide how to handle files already in Dropbox
@@ -22,8 +25,10 @@ HomeSync uses a folder in your dropbox (`~/Dropbox/HomeSync` by default) to stor
 
 ### Custom behaviors
 
-    $ homesync add config TextMate
+    $ homesync add pref TextMate
       # syncs ~/Library/Preferences/com.macromates.textmate.plist
+      # This works by using the launch agent to monitor changes to this
+      # file, since symlinking wouldn't work because of overwrites.
     $ homesync add appsupport TextMate
       # syncs ~/Library/Application Support/TextMate
     $ homesync add app TextMate
