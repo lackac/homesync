@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'homesync/version'
+rescue LoadError
+  $:.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+  require 'homesync/version'
+end
+
+if %w(--version -v).include? ARGV.first
+  puts "HomeSync #{HomeSync::VERSION}"
+  exit(0)
+end
+
+require 'homesync/cli'
+
+HomeSync::CLI.start
