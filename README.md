@@ -1,4 +1,4 @@
-**Note**: this is a draft, I haven't started to implement it yet. In true [RDD](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html) style here is the readme first.
+**Note**: This project is being developed following the [RDD](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html) model. Not all of the functionality described in this README have been implemented yet. Missing pieces are noted in the Usage section.
 
 # HomeSync
 
@@ -39,9 +39,9 @@ Tells HomeSync to synchronize the file. This is the default command meaning that
 
     $ homesync unsync [-r] ~/path/to/file_or_directory
 
-Given that the argument is a symbolic link to an existing file or directory in HomeSync, copies this file to its original place overwriting the symbolic link. Use the `-r` option to remove the file from homesync afterwards.
+*Not implemented yet.* Given that the argument is a symbolic link to an existing file or directory in HomeSync, copies this file to its original place overwriting the symbolic link. Use the `-r` option to remove the file from homesync afterwards.
 
-### Custom behaviors
+### Custom behaviors (*none of it implemented yet*)
 
     $ homesync sync:pref Application
     $ homesync unsync:pref Application
@@ -57,3 +57,15 @@ Syncs or unsyncs the application support directory of the application (e.g. for 
     $ homesync unsync:app Application
 
 Syncs or unsyncs both the application's preferences file and its application support directory.
+
+## Note on Patches/Pull Requests
+ 
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+## Copyright
+
+Copyright (c) 2011 László Bácsi. See LICENSE for details.
