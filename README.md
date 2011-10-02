@@ -13,8 +13,10 @@ synchronize application preferences and data.
 
 ## Installation
 
-    $ gem install homesync
-    $ homesync setup [-p ~/path/to/dropbox/homesync]
+```
+$ gem install homesync
+$ homesync setup [-p ~/path/to/dropbox/homesync]
+```
 
 ## How it works
 
@@ -38,14 +40,18 @@ to the other folder.
 
 ## Usage
 
-    $ homesync setup [-p ~/path/to/dropbox/homesync]
+```
+$ homesync setup [-p ~/path/to/dropbox/homesync]
+```
 
 Creates a launch agent to monitor changes of preferences files. The `-p`
 option tells HomeSync where to put synchronized files (defaults to
 `~/Dropbox/HomeSync`). This will be stored in the `~/.homesync`
 configuration file, but all the other commands accept this option too.
 
-    $ homesync sync [--overwrite-local | --overwrite-homesync] ~/path/to/file_or_dir
+```
+$ homesync sync [--overwrite-local | --overwrite-homesync] ~/path/to/file_or_dir
+```
 
 Tells HomeSync to synchronize the file. This is the default command
 meaning that the command name may be omitted. The outcome of this
@@ -67,7 +73,9 @@ with the same relative path in HomeSync:
     in and sync that instead (`--overwrite-homesync` to do this without
     asking)
 
-    $ homesync unsync [-r] ~/path/to/file_or_directory
+```
+$ homesync unsync [-r] ~/path/to/file_or_directory
+```
 
 *Not implemented yet.* Given that the argument is a symbolic link to an
 existing file or directory in HomeSync, copies this file to its original
@@ -76,8 +84,10 @@ file from homesync afterwards.
 
 ### Custom behaviors (*none of it implemented yet*)
 
-    $ homesync sync:pref Application
-    $ homesync unsync:pref Application
+```
+$ homesync sync:pref Application
+$ homesync unsync:pref Application
+```
 
 Syncs or unsyncs the preferences file of the application (e.g. for
 TextMate this would be
@@ -85,15 +95,19 @@ TextMate this would be
 wouldn't work because of overwrites, so this works by using a launch
 agent to monitor changes to this file.
 
-    $ homesync sync:appsupport Application
-    $ homesync unsync:appsupport Application
+```
+$ homesync sync:appsupport Application
+$ homesync unsync:appsupport Application
+```
 
 Syncs or unsyncs the application support directory of the application
 (e.g. for TextMate this would be `~/Library/Application
 Support/TextMate`).
 
-    $ homesync sync:app Application
-    $ homesync unsync:app Application
+```
+$ homesync sync:app Application
+$ homesync unsync:app Application
+```
 
 Syncs or unsyncs both the application's preferences file and its
 application support directory.
