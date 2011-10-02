@@ -1,7 +1,10 @@
 source "http://rubygems.org"
 
-gem "thor", "~> 0.14.0"
+gemspec
 
 group :development do
-  gem "rspec", "~> 2.0.0.beta.22"
+  if RUBY_PLATFORM =~ /darwin/
+    gem 'rb-fsevent'
+    gem 'growl_notify'
+  end
 end

@@ -5,18 +5,31 @@ RSpec.configure do |config|
   config.color_enabled = true
   #config.filter_run :focus => true
 
-  def capture(stream)
+  def capture_io
     begin
-      stream = stream.to_s
-      eval "$#{stream} = StringIO.new"
+      $stdout = StringIO.new
+      $stderr = StringIO.new
       yield
-      result = eval("$#{stream}").string
+      result = [ $stdout.string, $stderr.string ]
     ensure
-      eval("$#{stream} = #{stream.upcase}")
+      $stdout = STDOUT
+      $stderr = STDERR
     end
-
     result
   end
 
-  alias :silence :capture
+  alias :silence :capture_io
+end
+
+def homesync(arguments)
+  HomeSync::CLI.start(arguments.split(/\s+/))
+end
+
+def setup_fixtures
+  tmp_path = Pathname.new(__FILE__).dirname.join("../tmp/test").expand_path
+  tmp_path.rmtree if tmp_path.exist?
+  tmp_path.join("Users").mkpath
+  ENV['HOME'] = "#{tmp_path}/Users/Alice"
+  fixtures = Pathname.new(__FILE__).dirname.join("fixtures/home")
+  %x{ cp -r #{fixtures} #{ENV['HOME']} }
 end

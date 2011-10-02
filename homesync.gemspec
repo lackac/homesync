@@ -18,13 +18,15 @@ it knows how to handle several key directories correctly and how to
 synchronize application preferences and data.
   EOH
 
-  s.files        = Dir['bin/*','lib/**/*','spec/**/*'] + %w(README.md LICENSE Gemfile Gemfile.lock)
+  s.files        = Dir['bin/*','lib/**/*','spec/**/*'] + %w(README.md LICENSE Gemfile)
   s.executables  = %w(homesync)
   s.platform     = Gem::Platform::RUBY
   s.require_path = 'lib'
   s.rubyforge_project = 'nowarning'
   s.required_rubygems_version = '>= 1.3.6'
 
-  s.add_runtime_dependency "thor", "~> 0.14.0"
-  s.add_development_dependency "rspec", "~> 2.0.0.beta.22"
+  s.add_runtime_dependency "thor", "~> 0.14.6"
+  s.add_development_dependency "rspec", "~> 2.6.0"
+  s.add_development_dependency "guard", "~> 0.8.3"
+  s.add_development_dependency "guard-rspec", "~> 0.4.0"
 end

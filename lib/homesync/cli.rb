@@ -1,24 +1,45 @@
 require 'thor'
 require 'pathname'
 require 'yaml'
-require 'erb'
 
 module HomeSync
   class CLI < Thor
 
     class_option :homesync_path, :aliases => "-p"
 
-    desc "setup", "Creates the launch agent and configures HomeSync."
+    desc "setup", "Create the launch agent and configure HomeSync"
     long_desc <<-EOH
-      Creates a launch agent to monitor changes of preferences files.
-      Stores homesync path configuration (-p option) in ~/.homesync
+      Create a launch agent to monitor changes of preferences files
+      Store homesync path configuration (-p option) in ~/.homesync
     EOH
     def setup
       update_homesync_config
       update_launch_agent
     end
 
+    desc "sync FILE", "Setup syncing for file or directory"
+    long_desc <<-EOH
+      Move the file to the HomeSync directory and create a symbolic link in its
+      place. Or setup a symbolic link in this location if the file doesn't exist
+      but a matching file in HomeSync does.
+
+      When both files exist you will be asked what to do. Alternatively you could
+      tell HomeSync which road to go using one of the options of this command.
+    EOH
+    def sync(path)
+      path = Pathname.new(path).expand_path
+      relative_from_home = path.relative_path_from(home_path)
+
+      if relative_from_home.to_s =~ %r{^../}
+        error "The path does not point inside your home directory"
+      end
+    end
+
   private
+
+    def error(message)
+      shell.error shell.set_color(message, :red)
+    end
 
     def home_path
       Pathname.new(ENV['HOME'])
