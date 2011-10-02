@@ -31,5 +31,5 @@ def setup_fixtures
   tmp_path.join("Users").mkpath
   ENV['HOME'] = "#{tmp_path}/Users/Alice"
   fixtures = Pathname.new(__FILE__).dirname.join("fixtures/home")
-  %x{ cp -r #{fixtures} #{ENV['HOME']} }
+  %x{ cp -a #{fixtures} #{ENV['HOME']} }
 end
