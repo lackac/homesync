@@ -78,13 +78,13 @@ describe HomeSync::CLI do
 
     context "when argument is not under user's home" do
       let(:args) { "/bin/bash" }
-      specify { stderr.should include("The path does not point inside your home directory") }
+      specify { stderr.should include("is not inside your home directory") }
     end
 
     context "when argument doesn't exist" do
       context "and matching file in homesync doesn't exist either" do
         let(:args) { "~/404" }
-        specify { stderr.should include("File or directory doesn't exist") }
+        specify { stderr.should include("doesn't exist") }
       end
 
       context "but matching file in homesync does" do
