@@ -28,11 +28,11 @@ rescue LoadError
 end
 
 begin
-  require 'rake/gempackagetask'
+  require 'rubygems/package_task'
 rescue LoadError
   task(:gem) { $stderr.puts '`gem install rake` to package gems' }
 else
-  Rake::GemPackageTask.new(gemspec) do |pkg|
+  Gem::PackageTask.new(gemspec) do |pkg|
     pkg.gem_spec = gemspec
   end
   task :gem => [:gemspec]
