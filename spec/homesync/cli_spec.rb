@@ -94,7 +94,6 @@ describe HomeSync::CLI do
         specify { stdout.should include("Created link to #{ENV['HOME']}/Dropbox/HomeSync/todo.txt") }
 
         it "should create a link to the file in HomeSync" do
-          todo.should be_symlink
           todo.readlink.should == homesync_path.join("todo.txt")
         end
       end
@@ -112,9 +111,44 @@ describe HomeSync::CLI do
 
     context "when argument is a regular file" do
       context "and matching file in homesync doesn't exist" do
+        let(:args) { "~/Code/hello_world.rb" }
+        let(:original_file) { home.join("Code/hello_world.rb") }
+        let(:homesync_file) { homesync_path.join("Code/hello_world.rb") }
+
+        specify { stdout.should include("Moved #{original_file} to HomeSync and created a symlink to it") }
+
+        it "should move the original file to HomeSync" do
+          homesync_file.should be_file
+        end
+
+        it "should create a link to the file in HomeSync" do
+          original_file.readlink.should == homesync_file
+        end
       end
 
-      context "but matching file in homesync already exists" do
+      context "and matching file in homesync also exists" do
+
+      end
+    end
+
+    context "when argument is a directory" do
+      context "and matching directory in homesync doesn't exist" do
+        let(:args) { "~/Code/hello_world" }
+        let(:original_dir) { home.join("Code/hello_world") }
+        let(:homesync_dir) { homesync_path.join("Code/hello_world") }
+
+        specify { stdout.should include("Moved #{original_dir} to HomeSync and created a symlink to it") }
+
+        it "should move the original directory to HomeSync" do
+          homesync_dir.should be_directory
+        end
+
+        it "should create a link to the directory in HomeSync" do
+          original_dir.readlink.should == homesync_dir
+        end
+      end
+
+      context "and matching directory in homesync also exists" do
 
       end
     end

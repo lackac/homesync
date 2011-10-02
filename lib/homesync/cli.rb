@@ -47,6 +47,13 @@ module HomeSync
       end
 
       if path.exist?
+        if sync_path.exist?
+        else
+          sync_path.dirname.mkpath
+          path.rename(sync_path)
+          path.make_symlink(sync_path.to_s)
+          say "Moved #{path} to HomeSync and created a symlink to it"
+        end
       else
         if sync_path.exist?
           path.make_symlink(sync_path.to_s)
