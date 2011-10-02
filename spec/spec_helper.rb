@@ -5,13 +5,15 @@ RSpec.configure do |config|
   config.color_enabled = true
   #config.filter_run :focus => true
 
-  def capture_io
+  def capture_io(stdin=nil)
     begin
+      $stdin  = StringIO.new(stdin) unless stdin.nil?
       $stdout = StringIO.new
       $stderr = StringIO.new
       yield
       result = [ $stdout.string, $stderr.string ]
     ensure
+      $stdin  = STDIN
       $stdout = STDOUT
       $stderr = STDERR
     end

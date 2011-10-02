@@ -26,7 +26,12 @@ module HomeSync
       When both files exist you will be asked what to do. Alternatively you could
       tell HomeSync which road to go using one of the options of this command.
     EOH
+    method_options :overwrite_local => :boolean, :overwrite_homesync => :boolean
     def sync(path)
+      if options[:overwrite_local] and options[:overwrite_homesync]
+        error "--overwrite-local and --overwrite-homesync cannot be used together"
+      end
+
       path = Pathname.new(path).expand_path
       relative_from_home = path.relative_path_from(home_path)
 
@@ -48,6 +53,18 @@ module HomeSync
 
       if path.exist?
         if sync_path.exist?
+          if options[:overwrite_local] or (not options[:overwrite_homesync] and shell.file_collision(path))
+            if path.file? then path.unlink else path.rmtree end
+            path.make_symlink(sync_path.to_s)
+            say "Replaced #{path} with symlink to #{sync_path}"
+          elsif options[:overwrite_homesync] or shell.file_collision(sync_path)
+            if sync_path.file? then sync_path.unlink else sync_path.rmtree end
+            path.rename(sync_path)
+            path.make_symlink(sync_path.to_s)
+            say "Replaced #{sync_path} with local version and created symlink to it"
+          else
+            say "Kept both versions, syncing has been cancelled"
+          end
         else
           sync_path.dirname.mkpath
           path.rename(sync_path)

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+# with numbers
+
+8.times do |i|
+  puts "\e[3#{i}mcolor #{i} \e[1mbold color #{i}\e[0m"
+end

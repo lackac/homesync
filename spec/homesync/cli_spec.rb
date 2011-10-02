@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe HomeSync::CLI do
 
+  let(:stdin)  { nil }
   let(:stdout) { @stdout }
   let(:stderr) { @stderr }
   let(:command) { "" }
@@ -11,7 +12,7 @@ describe HomeSync::CLI do
 
   before do
     setup_fixtures
-    @stdout, @stderr = capture_io { homesync "#{command} #{args}" }
+    @stdout, @stderr = capture_io(stdin) { homesync "#{command} #{args}" }
   end
 
   describe '#setup' do
@@ -127,7 +128,93 @@ describe HomeSync::CLI do
       end
 
       context "and matching file in homesync also exists" do
+        let(:args) { "~/bin/colors" }
+        let(:local_path) { home.join("bin/colors") }
+        let(:sync_path) { homesync_path.join("bin/colors") }
+        let(:contents) { File.read(local_path) }
 
+        context "without options" do
+          context "answering Yes to overwrite local" do
+            let(:stdin) { "y\n" }
+
+            specify { stdout.should include("Overwrite #{local_path}?") }
+            specify { stdout.should include("Replaced #{local_path} with symlink to #{sync_path}") }
+
+            it "should create a link to the file in HomeSync" do
+              local_path.readlink.should == sync_path
+            end
+
+            it "should keep the HomeSync version of the file" do
+              contents.should include("with numbers")
+            end
+          end
+
+          context "answering No to overwrite local and Yes to overwrite HomeSync" do
+            let(:stdin) { "n\ny\n" }
+
+            specify { stdout.should include("Overwrite #{local_path}?") }
+            specify { stdout.should include("Overwrite #{sync_path}?") }
+            specify { stdout.should include("Replaced #{sync_path} with local version and created symlink to it") }
+
+            it "should create a link to the file in HomeSync" do
+              local_path.readlink.should == sync_path
+            end
+
+            it "should keep the local version of the file" do
+              contents.should include("with color names")
+            end
+          end
+
+          context "answering No both to overwrite local and HomeSync" do
+            let(:stdin) { "n\nn\n" }
+
+            specify { stdout.should include("Overwrite #{local_path}?") }
+            specify { stdout.should include("Overwrite #{sync_path}?") }
+            specify { stdout.should include("Kept both versions, syncing has been cancelled") }
+
+            it "should keep the local file in place" do
+              contents.should include("with color names")
+            end
+
+            it "should keep the HomeSync version of the file" do
+              File.read(sync_path).should include("with numbers")
+            end
+          end
+        end
+
+        context "using --overwrite-local option" do
+          let(:args) { "~/bin/colors --overwrite-local" }
+
+          specify { stdout.should include("Replaced #{local_path} with symlink to #{sync_path}") }
+
+          it "should create a link to the file in HomeSync" do
+            local_path.readlink.should == sync_path
+          end
+
+          it "should keep the HomeSync version of the file" do
+            contents.should include("with numbers")
+          end
+        end
+
+        context "using --overwrite-homesync option" do
+          let(:args) { "~/bin/colors --overwrite-homesync" }
+
+          specify { stdout.should include("Replaced #{sync_path} with local version and created symlink to it") }
+
+          it "should create a link to the file in HomeSync" do
+            local_path.readlink.should == sync_path
+          end
+
+          it "should keep the local version of the file" do
+            contents.should include("with color names")
+          end
+        end
+
+        context "using both --overwrite-local and --overwrite-homesync options" do
+          # this does not make any sense
+          let(:args) { "~/bin/colors --overwrite-local --overwrite-homesync" }
+          specify { stderr.should include("--overwrite-local and --overwrite-homesync cannot be used together") }
+        end
       end
     end
 
@@ -149,7 +236,38 @@ describe HomeSync::CLI do
       end
 
       context "and matching directory in homesync also exists" do
+        let(:args) { "~/tasks" }
+        let(:local_path) { home.join("tasks") }
+        let(:sync_path) { homesync_path.join("tasks") }
+        let(:dir_entries) { local_path.entries.map(&:basename).map(&:to_s) - %w(. ..) }
 
+        context "using --overwrite-local option" do
+          let(:args) { "~/tasks --overwrite-local" }
+
+          specify { stdout.should include("Replaced #{local_path} with symlink to #{sync_path}") }
+
+          it "should create a link to the directory in HomeSync" do
+            local_path.readlink.should == sync_path
+          end
+
+          it "should keep the HomeSync version of the directory" do
+            dir_entries.should =~ %w(home work world_hunger)
+          end
+        end
+
+        context "using --overwrite-homesync option" do
+          let(:args) { "~/tasks --overwrite-homesync" }
+
+          specify { stdout.should include("Replaced #{sync_path} with local version and created symlink to it") }
+
+          it "should create a link to the directory in HomeSync" do
+            local_path.readlink.should == sync_path
+          end
+
+          it "should keep the local version of the directory" do
+            dir_entries.should =~ %w(home garden shopping)
+          end
+        end
       end
     end
 
