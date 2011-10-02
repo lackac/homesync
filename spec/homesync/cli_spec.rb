@@ -272,10 +272,27 @@ describe HomeSync::CLI do
     end
 
     context "with custom homesync path" do
+      let(:contents) { File.read(home.join("custom_homesync")).chomp }
+
       context "provided by the -p option" do
+        let(:args) { "~/custom_homesync -p ~/DB/HS" }
+
+        it "should create the link to the file in the custom homesync path" do
+          contents.should == "abbreviated"
+        end
       end
 
       context "stored in ~/.homesync configuration" do
+        let(:args) { "~/custom_homesync" }
+
+        before do
+          home.join(".homesync").open("w") {|f| f.write({'homesync_path' => "~/Dropbox/.homesync"}.to_yaml)}
+          @stdout, @stderr = capture_io { homesync "#{command} #{args}" }
+        end
+
+        it "should create the link to the file in the custom homesync path" do
+          contents.should == "hidden"
+        end
       end
     end
 

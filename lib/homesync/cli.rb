@@ -13,7 +13,7 @@ module HomeSync
       Store homesync path configuration (-p option) in ~/.homesync
     EOH
     def setup
-      update_homesync_config
+      update_homesync_config if options[:homesync_path]
       update_launch_agent
     end
 
@@ -92,16 +92,26 @@ module HomeSync
     end
 
     def homesync_path
-      Pathname.new(options[:homesync_path] || "~/Dropbox/HomeSync").expand_path
+      Pathname.new(
+        options[:homesync_path] ||
+        homesync_config['homesync_path'] ||
+        "~/Dropbox/HomeSync"
+      ).expand_path
+    end
+
+    def config_file
+      home_path.join(".homesync")
+    end
+
+    def homesync_config
+      @homesync_config ||= config_file.exist? ? YAML.load_file(config_file) : {}
     end
 
     def update_homesync_config
-      config_file = home_path.join(".homesync")
-      config = config_file.exist? ? YAML.load_file(config_file) : {}
       relative_homesync_path = "~/" + homesync_path.relative_path_from(home_path).to_s
-      if config['homesync_path'] != relative_homesync_path
-        config['homesync_path'] = relative_homesync_path
-        config_file.open("w") { |f| f.write(config.to_yaml) }
+      if homesync_config['homesync_path'] != relative_homesync_path
+        homesync_config['homesync_path'] = relative_homesync_path
+        config_file.open("w") { |f| f.write(homesync_config.to_yaml) }
         puts "Configuration written to #{config_file}"
       end
     end
