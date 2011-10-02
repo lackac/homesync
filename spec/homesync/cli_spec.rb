@@ -29,7 +29,7 @@ describe HomeSync::CLI do
 
     shared_examples_for "a launch agent generator" do
       context "when launch agent doesn't exist" do
-        specify { stdout.should include("Launch Agent created") }
+        specify { stdout.should include("Created Launch Agent") }
         it_should_behave_like "a launch agent"
       end
 
@@ -49,7 +49,7 @@ describe HomeSync::CLI do
           @stdout, @stderr = capture_io { homesync "#{command} #{args}" }
         end
 
-        specify { stdout.should include("Launch Agent updated") }
+        specify { stdout.should include("Updated Launch Agent") }
         it_should_behave_like "a launch agent"
       end
     end

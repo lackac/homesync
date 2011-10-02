@@ -60,7 +60,7 @@ module HomeSync
   private
 
     def error(message)
-      shell.error shell.set_color(message, :red)
+      raise Thor::Error, message
     end
 
     def home_path
@@ -112,15 +112,15 @@ module HomeSync
 
       if launch_agent_path.exist?
         if launch_agent_path.read == launch_agent
-          puts "Launch Agent already exists"
+          say "Launch Agent already exists"
         else
           launch_agent_path.open("w") { |f| f.write(launch_agent) }
-          puts "Launch Agent updated"
+          say "Updated Launch Agent"
         end
       else
         launch_agent_path.dirname.mkpath
         launch_agent_path.open("w") { |f| f.write(launch_agent) }
-        puts "Launch Agent created"
+        say "Created Launch Agent"
       end
     end
   end
