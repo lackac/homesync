@@ -101,9 +101,13 @@ describe HomeSync::CLI do
     end
 
     context "when argument is a link to the matching homesync file" do
+      let(:args) { "~/synced" }
+      specify { stderr.should include("is already syncing") }
     end
 
     context "when argument is a link to somewhere else" do
+      let(:args) { "~/existing_link" }
+      specify { stderr.should include("is a symlink pointing somewhere else") }
     end
 
     context "when argument is a regular file" do

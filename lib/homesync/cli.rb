@@ -36,6 +36,16 @@ module HomeSync
 
       sync_path = homesync_path.join(relative_from_home)
 
+      if path.symlink?
+        target = path.readlink
+        target = path.dirname.realpath.join(target) if target.relative?
+        if target == sync_path
+          error "#{path} is already syncing"
+        else
+          error "#{path} is a symlink pointing somewhere else than its place in #{homesync_path}"
+        end
+      end
+
       if path.exist?
       else
         if sync_path.exist?
