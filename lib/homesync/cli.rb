@@ -33,6 +33,18 @@ module HomeSync
       if relative_from_home.to_s =~ %r{^../}
         error "The path does not point inside your home directory"
       end
+
+      sync_path = homesync_path.join(relative_from_home)
+
+      if path.exist?
+      else
+        if sync_path.exist?
+          path.make_symlink(sync_path.to_s)
+          say "Created link to #{sync_path}"
+        else
+          error "File or directory doesn't exist"
+        end
+      end
     end
 
   private
