@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Usage: homesync relpath dir target
+# Summary: Returns the relative path target target from dir
+
+if [ $# -ne 2 ]; then
+  $_HOMESYNC_ROOT/libexec/homesync-help relpath
+  exit 1
+fi
+
+dir=$1
+dir=${dir//\/\//\/}
+dir=${dir%/}
+target=$2
+target=${target//\/\//\/}
+target=${target%/}
+
+IFS=/
+dirs=(${dir#/})
+
+commonPrefix=/
+for d in "${dirs[@]}"; do
+  case "$target/" in
+    "$commonPrefix$d/"* )
+      ;;
+    * )
+      break
+      ;;
+  esac
+  commonPrefix+="$d/"
+done
+ancestor="${dir#${commonPrefix%/}}"
+ancestor=${ancestor//[^\/]/}
+ancestor=${ancestor//\//..\/}
+echo "$ancestor${target#$commonPrefix}"
