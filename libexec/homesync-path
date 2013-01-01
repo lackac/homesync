@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Usage: homesync path
+# Summary: Returns the path to the HomeSync directory
+# Help: This command is mostly used internally to find the path to the
+# HomeSync directory. It queries the symlinked homesync manifest to
+# find this path.
+#
+# Options:
+# 
+#   -q, --quiet: don't print out any messages, just the path if set up
+
+if [ "$1" = "-q" ]; then
+  exec 2>/dev/null
+fi
+
+link_target=$(readlink $HOME/.homesync.manifest)
+
+if [ -z $link_target ]; then
+  echo "homesync haven't been set up. Run the setup command first." >&2
+  exit 1
+else
+  dirname $link_target
+fi

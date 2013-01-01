@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Usage: homesync setup [options]
+# Summary: Sets up homesync
+# Help: Sets up homesync by creating a manifest file which will store
+# all the locations set up for syncing. This file will be created in
+# the HomeSync directory and additionally linked to ~/.homesync.manifest
+#
+# Options:
+# 
+#   -p, --homesync-path: override path to the HomeSync directory which
+#                        homesync uses to the sync files
+#                        (default: ~/Dropbox/HomeSync)
+
+set -e
+
+# Provide homesync completions
+if [ "$1" = "--complete" ]; then
+  echo --homesync-path
+  exit
+fi
+
+homesync_path=$HOME/Dropbox/HomeSync
+
+while [ $# -gt 0 ]; do
+  arg=$1
+  shift
+
+  case $arg in
+    -p | --homesync-path )
+      homesync_path=$1
+      shift
+      ;;
+  esac
+done
+
+existing_homesync_path=$($_HOMESYNC_ROOT/libexec/homesync-path -q || true)
+
+if [ ! -z $existing_homesync_path ]; then
+  exec >&2
+  if [ "$existing_homesync_path" = "$homesync_path" ]; then
+    echo "It seems you already have homesync set up at $homesync_path"
+    exit
+  else
+    echo "It seems you already have homesync set up at a different path:"
+    echo "  $existing_homesync_path"
+    echo "Clean up this installation first if you want to change to another path."
+    exit 1
+  fi
+fi
+
+mkdir -p $homesync_path
+
+touch $homesync_path/.homesync.manifest
+
+ln -s $homesync_path/.homesync.manifest $HOME/.homesync.manifest
+
+echo "homesync have been set up at $homesync_path"
