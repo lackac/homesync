@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: homesync app AppName
 # Summary: Sets up syncing preferences and application data of AppName
-# Summary: Sets up syncing preferences and application data of AppName.
+# Help: Sets up syncing preferences and application data of AppName.
 #
 # Homesync tries to find the preference file and Application Support directory
 # for AppName using a set of rules. The recognized paths will be passed on to
