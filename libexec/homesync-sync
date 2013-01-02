@@ -51,6 +51,11 @@ if [[ "$relative_path" = "../"* ]]; then
   exit 3
 fi
 
+# special case preference files
+if [[ $relative_path = "Library/Preferences/"* ]]; then
+  exec homesync-pref ${relative_path#Library/Preferences/}
+fi
+
 create_link() {
   ln -sv $homesync_path $path
 }
