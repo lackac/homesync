@@ -39,6 +39,7 @@ if [ ! -z $existing_homesync_path ]; then
   exec >&2
   if [ "$existing_homesync_path" = "$homesync_path" ]; then
     echo "It seems you already have homesync set up at $homesync_path"
+    homesync-launch-agent
     exit
   else
     echo "It seems you already have homesync set up at a different path:"
@@ -55,3 +56,5 @@ touch $homesync_path/.homesync.manifest
 ln -s $homesync_path/.homesync.manifest $HOME/.homesync.manifest
 
 echo "homesync have been set up at $homesync_path"
+
+homesync-launch-agent
