@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Usage: homesync prefs
+# Summary: Sync all preference files listed in the manifest
+
+set -e
+
+homesync=$(homesync-path)
+
+sync_pref() {
+  relative_path=$1
+  path=$HOME/$relative_path
+  homesync_path=$homesync/$relative_path
+
+  if [ $path -nt $homesync_path ]; then
+    mkdir -p $(dirname $homesync_path)
+    cp -p $path $homesync_path
+  elif [ $homesync_path -nt $path ]; then
+    mkdir -p $(dirname $path)
+    cp -p $homesync_path $path
+  fi
+}
+
+for file in $(grep ^Library/Preferences/ ~/.homesync.manifest); do
+  sync_pref $file
+done

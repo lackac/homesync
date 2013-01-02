@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Usage: homesync launch-agent
+# Summary: Creates or updates the launch agent for monitoring preference files
+
+set -e
+
+homesync=$(homesync-path)
+agent_path=$HOME/Library/LaunchAgents/com.icanscale.homesync.plist
+
+if [ -e $agent_path ]; then
+  action="Updated"
+else
+  action="Created"
+fi
+
+mkdir -p $(dirname $agent_path)
+
+cat >$agent_path <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.icanscale.homesync</string>
+	<key>OnDemand</key>
+	<true/>
+	<key>ProgramArguments</key>
+	<array>
+		<string>$_HOMESYNC_ROOT/libexec/homesync</string>
+		<string>prefs</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>WatchPaths</key>
+	<array>
+		<string>$HOME/Library/Preferences</string>
+		<string>$homesync/Library/Preferences</string>
+	</array>
+</dict>
+</plist>
+EOF
+
+if [[ $action = "Updated" ]]; then
+  launchctl unload $agent_path
+fi
+
+launchctl load $agent_path
+echo "$action Launch Agent"
