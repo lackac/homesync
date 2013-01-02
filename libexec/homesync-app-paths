@@ -28,10 +28,10 @@ fi
 
 # application support directory
 app_support_dir="Library/Application Support/$AppName"
-if [ -d "$HOME/$app_support_dir" ] || grep -q "$app_support_dir" ~/.homesync.manifest; then
+if [ -d "$HOME/$app_support_dir" ] || grep -q "^$app_support_dir$" ~/.homesync.manifest; then
   echo "$HOME/$app_support_dir"
 elif app_support_dir="$(grep -i -m 1 "Library/Application Support/.*$AppName.*" ~/.homesync.manifest)"; then
   echo "$HOME/$app_support_dir"
-elif ls -d $HOME/Library/Application\ Support/*$AppName* &>/dev/null || true; then
-  ls -d $HOME/Library/Application\ Support/*$AppName* | head -1
+elif matching_dir=$(ls $HOME/Library/Application\ Support/ | grep -im1 "$AppName"); then
+  echo $HOME/Library/Application\ Support/$matching_dir
 fi
