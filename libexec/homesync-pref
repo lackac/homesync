@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Usage: homesync pref [options] file
+# Summary: Sets up syncing for a preference file
+# Help: Sets up syncing for a preference file by copying the last
+# modified version to the other location. Adds the file to the manifest
+# so that the launch agent knows what to sync.
+#
+# Preference files are usually overwritten when the application exits.
+# For this reason we cannot sync them with symlinks and have to copy
+# instead. homesync setup creates a launch agent which monitors both
+# ~/Library/Preferences and HomeSync/Library/Preferences. When a file
+# change is detected this command will be invoked and the last modified
+# version will me copied to the other location.
+#
+# Options:
+#
+#   -c, --check-manifest: only sync the file if it's already in the manifest
+
+set -e
+
+while [ $# -gt 0 ]; do
+  arg=$1
+  shift
+
+  case $arg in
+    -c | --check-manifest )
+      CHECK_MANIFEST=1
+      ;;
+    * )
+      [ -z $file ] && file=$arg
+      ;;
+  esac
+done
+
+if [ -z $file ]; then
+  homesync-help pref
+  exit 1
+fi
+
+relative_path=Library/Preferences/$file
+path=$HOME/$relative_path
+homesync=$(homesync-path)
+homesync_path=$homesync/$relative_path
+
+if [[ $CHECK_MANIFEST = 1 ]] && ! grep -q $relative_path ~/.homesync.manifest; then
+  exit 2
+fi
+
+if [ $path -nt $homesync_path ]; then
+  mkdir -p $(dirname $homesync_path)
+  cp -pv $path $homesync_path
+  homesync-manifest-add $relative_path
+elif [ $homesync_path -nt $path ]; then
+  mkdir -p $(dirname $path)
+  cp -pv $homesync_path $path
+  homesync-manifest-add $relative_path
+elif [[ ! -e $path && ! -e $homesync_path ]]; then
+  echo "$file doesn't exist in either locations" >&2
+  exit 3
+fi
