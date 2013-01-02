@@ -31,11 +31,11 @@ case "$command" in
 * )
   command_path="$(command -v "homesync-$command" || true)"
   if [ ! -x "$command_path" ]; then
-    echo "homesync: no such command \`$command'" >&2
-    exit 1
+    command_path=$(command -v "homesync-sync")
+  else
+    shift
   fi
 
-  shift
   exec "$command_path" "$@"
   ;;
 esac
