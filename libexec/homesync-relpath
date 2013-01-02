@@ -7,10 +7,26 @@ if [ $# -ne 2 ]; then
   exit 1
 fi
 
+expand_path() {
+  if [ -d "$1" ]; then
+    pushd "$1" >/dev/null
+    pwd
+    popd >/dev/null
+  elif [ -e "$1" ]; then
+    pushd "$(dirname "$1")" >/dev/null
+    echo "$(pwd)/$(basename "$1")"
+    popd >/dev/null
+  elif [[ $1 = /* ]]; then
+    echo $1
+  else
+    echo "$(pwd)/$1"
+  fi
+}
+
 dir=$1
 dir=${dir//\/\//\/}
 dir=${dir%/}
-target=$2
+target=$(expand_path $2)
 target=${target//\/\//\/}
 target=${target%/}
 
