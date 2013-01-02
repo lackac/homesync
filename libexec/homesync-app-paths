@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Usage: homesync app-paths AppName
+# Summary: Lists paths that could be synced for an application
+# Help: Lists paths that could be synced for an application.
+
+set -e
+
+AppName=$1
+
+if [ -z $AppName ]; then
+  homesync-help app-paths
+  exit 1
+fi
+
+appname=$(echo $1 | tr 'A-Z' 'a-z')
+app_id=$(osascript -e "id of app \"$AppName\"" 2>/dev/null || true)
+
+if [ -z $app_id ]; then
+  echo "$AppName is not a recognizable application" >&2
+  exit 2
+fi
+
+# preference file
+pref_relative=Library/Preferences/$app_id.plist
+if [ -e $HOME/$pref_relative ] || grep -q $pref_relative ~/.homesync.manifest; then
+  echo $HOME/$pref_relative
+fi
+
+# application support directory
+app_support_dir="Library/Application Support/$AppName"
+if [ -d "$HOME/$app_support_dir" ] || grep -q "$app_support_dir" ~/.homesync.manifest; then
+  echo "$HOME/$app_support_dir"
+elif app_support_dir="$(grep -i -m 1 "Library/Application Support/.*$AppName.*" ~/.homesync.manifest)"; then
+  echo "$HOME/$app_support_dir"
+elif ls -d $HOME/Library/Application\ Support/*$AppName* &>/dev/null || true; then
+  ls -d $HOME/Library/Application\ Support/*$AppName* | head -1
+fi
