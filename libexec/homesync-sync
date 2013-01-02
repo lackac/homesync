@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# Usage: homesync sync [options] path
+# Summary: Sets up syncing for path
+# Help: Sets up syncing for path by moving it under the HomeSync
+# directory and creating a symbolic link in its original location.
+#
+# Options:
+# 
+#   --overwrite-local:    makes homesync overwrite the local file if
+#                         that and a matching file in HomeSync both exist
+#   --overwrite-homesync: makes homesync overwrite the file in HomeSync
+#                         if that and a matching local file both exist
+
+set -e
+
+while [ $# -gt 0 ]; do
+  arg=$1
+  shift
+
+  case $arg in
+    --overwrite-local )
+      OW_LOCAL=1
+      ;;
+    --overwrite-homesync )
+      OW_HOMESYNC=1
+      ;;
+    * )
+      path=$arg
+      ;;
+  esac
+done
+
+if [ -z $path ]; then
+  $_HOMESYNC_ROOT/libexec/homesync-help sync
+  exit 1
+fi
+
+if [[ ! -z $OW_LOCAL && ! -z $OW_HOMESYNC ]]; then
+  exec >&2
+  echo "The --overwrite-local and --overwrite-homesync options are mutually exlcusive." 
+  echo "Only provide one of them."
+  exit 2
+fi
+
+homesync=$($_HOMESYNC_ROOT/libexec/homesync-path)
+relative_path=$($_HOMESYNC_ROOT/libexec/homesync-relpath $HOME $path)
+homesync_path=$homesync/$relative_path
+
+if [[ "$relative_path" = "../"* ]]; then
+  echo "path should be under your home directory" >&2
+  exit 3
+fi
+
+create_link() {
+  ln -sv $homesync_path $path
+}
+move_file() {
+  echo "moving $path to homesync"
+  mv $path $homesync_path
+}
+add_to_manifest() {
+  if ! grep -q $relative_path ~/.homesync.manifest; then
+    echo $relative_path >> ~/.homesync.manifest
+  fi
+}
+
+if [ -e $path ]; then
+  if [ -L $path ]; then
+    target=$(readlink $path)
+    if [[ $target = $homesync_path ]]; then
+      echo "$relative_path has already been set up to sync"
+      add_to_manifest
+      exit
+    else
+      echo "path is a symlink itself to $target and homesync doesn't handle this case" >&2
+      exit 4
+    fi
+  fi
+  if [ -e $homesync_path ]; then
+    if [[ -z $OW_LOCAL && -z $OW_HOMESYNC ]]; then
+      echo "both $path and $homesync_path exist"
+      read -p "Should the local file be overwritten? [yN] " answer
+      case $answer in
+        y|Y) OW_LOCAL=1 ;;
+        * )
+          read -p "Should the file in homesync be overwritten? [yN] " answer
+          case $answer in
+            y|Y) OW_HOMESYNC=1 ;;
+            * )
+              echo "aborting"
+              exit 5
+              ;;
+          esac
+          ;;
+      esac
+    fi
+    if [[ $OW_LOCAL = 1 ]]; then
+      rm -rf $path
+    else
+      rm -rf $homesync_path
+      move_file
+    fi
+  else
+    mkdir -p $(dirname $homesync_path)
+    move_file
+  fi
+  create_link
+  add_to_manifest
+else
+  if [ -e $homesync_path ]; then
+    mkdir -p $(dirname $path)
+    create_link
+    add_to_manifest
+  else
+    echo "Neither $homesync_path nor $path exists." >&2
+    exit 6
+  fi
+fi
