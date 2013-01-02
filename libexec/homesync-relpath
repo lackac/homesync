@@ -3,7 +3,7 @@
 # Summary: Returns the relative path target target from dir
 
 if [ $# -ne 2 ]; then
-  $_HOMESYNC_ROOT/libexec/homesync-help relpath
+  homesync-help relpath
   exit 1
 fi
 

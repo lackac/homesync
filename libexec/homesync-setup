@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-existing_homesync_path=$($_HOMESYNC_ROOT/libexec/homesync-path -q || true)
+existing_homesync_path=$(homesync-path -q || true)
 
 if [ ! -z $existing_homesync_path ]; then
   exec >&2

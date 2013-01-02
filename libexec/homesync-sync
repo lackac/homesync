@@ -31,7 +31,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z $path ]; then
-  $_HOMESYNC_ROOT/libexec/homesync-help sync
+  homesync-help sync
   exit 1
 fi
 
@@ -42,8 +42,8 @@ if [[ ! -z $OW_LOCAL && ! -z $OW_HOMESYNC ]]; then
   exit 2
 fi
 
-homesync=$($_HOMESYNC_ROOT/libexec/homesync-path)
-relative_path=$($_HOMESYNC_ROOT/libexec/homesync-relpath $HOME $path)
+homesync=$(homesync-path)
+relative_path=$(homesync-relpath $HOME $path)
 homesync_path=$homesync/$relative_path
 
 if [[ "$relative_path" = "../"* ]]; then
