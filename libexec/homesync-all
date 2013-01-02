@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Usage: homesync all [options]
+# Summary: Sets up syncing for all files listed in the manifest
+# Help: Sets up syncing for all files listed in the manifest.
+#
+# Options:
+#
+#   -d, --dotfiles: only sync dotfiles (~/.* and ~/bin/*)
+
+set -e
+
+while [ $# -gt 0 ]; do
+  arg=$1
+  shift
+
+  case $arg in
+    -d | --dotfiles )
+      DOTFILES=1
+      ;;
+  esac
+done
+
+homesync=$(homesync-path)
+
+for path in $(cat ~/.homesync.manifest); do
+  if [[ $DOTFILES != 1 || $path = "."* || $path = "bin/"* ]]; then
+    homesync-sync $HOME/$path
+  fi
+done
