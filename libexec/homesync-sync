@@ -58,18 +58,13 @@ move_file() {
   echo "moving $path to homesync"
   mv $path $homesync_path
 }
-add_to_manifest() {
-  if ! grep -q $relative_path ~/.homesync.manifest; then
-    echo $relative_path >> ~/.homesync.manifest
-  fi
-}
 
 if [ -e $path ]; then
   if [ -L $path ]; then
     target=$(readlink $path)
     if [[ $target = $homesync_path ]]; then
       echo "$relative_path has already been set up to sync"
-      add_to_manifest
+      homesync-manifest-add $relative_path
       exit
     else
       echo "path is a symlink itself to $target and homesync doesn't handle this case" >&2
@@ -105,12 +100,12 @@ if [ -e $path ]; then
     move_file
   fi
   create_link
-  add_to_manifest
+  homesync-manifest-add $relative_path
 else
   if [ -e $homesync_path ]; then
     mkdir -p $(dirname $path)
     create_link
-    add_to_manifest
+    homesync-manifest-add $relative_path
   else
     echo "Neither $homesync_path nor $path exists." >&2
     exit 6
