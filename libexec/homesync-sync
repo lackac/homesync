@@ -30,7 +30,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-if [ -z $path ]; then
+if [ -z "$path" ]; then
   homesync-help sync
   exit 1
 fi
@@ -43,8 +43,8 @@ if [[ ! -z $OW_LOCAL && ! -z $OW_HOMESYNC ]]; then
 fi
 
 homesync=$(homesync-path)
-relative_path=$(homesync-relpath $HOME $path)
-homesync_path=$homesync/$relative_path
+relative_path="$(homesync-relpath $HOME "$path")"
+homesync_path="$homesync/$relative_path"
 
 if [[ "$relative_path" = "../"* ]]; then
   echo "path should be under your home directory" >&2
@@ -52,31 +52,31 @@ if [[ "$relative_path" = "../"* ]]; then
 fi
 
 # special case preference files
-if [[ $relative_path = "Library/Preferences/"* ]]; then
+if [[ "$relative_path" = "Library/Preferences/"* ]]; then
   exec homesync-pref ${relative_path#Library/Preferences/}
 fi
 
 create_link() {
-  ln -sv $homesync_path $path
+  ln -sv "$homesync_path" "$path"
 }
 move_file() {
   echo "moving $path to homesync"
-  mv $path $homesync_path
+  mv "$path" "$homesync_path"
 }
 
-if [ -e $path ]; then
-  if [ -L $path ]; then
-    target=$(readlink $path)
-    if [[ $target = $homesync_path ]]; then
+if [ -e "$path" ]; then
+  if [ -L "$path" ]; then
+    target=$(readlink "$path")
+    if [[ "$target" = "$homesync_path" ]]; then
       echo "$relative_path has already been set up to sync"
-      homesync-manifest-add $relative_path
+      homesync-manifest-add "$relative_path"
       exit
     else
       echo "path is a symlink itself to $target and homesync doesn't handle this case" >&2
       exit 4
     fi
   fi
-  if [ -e $homesync_path ]; then
+  if [ -e "$homesync_path" ]; then
     if [[ -z $OW_LOCAL && -z $OW_HOMESYNC ]]; then
       echo "both $path and $homesync_path exist"
       read -p "Should the local file be overwritten? [yN] " answer
@@ -95,22 +95,22 @@ if [ -e $path ]; then
       esac
     fi
     if [[ $OW_LOCAL = 1 ]]; then
-      rm -rf $path
+      rm -rf "$path"
     else
-      rm -rf $homesync_path
+      rm -rf "$homesync_path"
       move_file
     fi
   else
-    mkdir -p $(dirname $homesync_path)
+    mkdir -p "$(dirname "$homesync_path")"
     move_file
   fi
   create_link
-  homesync-manifest-add $relative_path
+  homesync-manifest-add "$relative_path"
 else
-  if [ -e $homesync_path ]; then
-    mkdir -p $(dirname $path)
+  if [ -e "$homesync_path" ]; then
+    mkdir -p "$(dirname "$path")"
     create_link
-    homesync-manifest-add $relative_path
+    homesync-manifest-add "$relative_path"
   else
     echo "Neither $homesync_path nor $path exists." >&2
     exit 6

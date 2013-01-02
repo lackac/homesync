@@ -23,12 +23,12 @@ expand_path() {
   fi
 }
 
-dir=$1
-dir=${dir//\/\//\/}
-dir=${dir%/}
-target=$(expand_path $2)
-target=${target//\/\//\/}
-target=${target%/}
+dir="$1"
+dir="${dir//\/\//\/}"
+dir="${dir%/}"
+target="$(expand_path "$2")"
+target="${target//\/\//\/}"
+target="${target%/}"
 
 IFS=/
 dirs=(${dir#/})
