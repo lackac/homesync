@@ -22,8 +22,9 @@ done
 
 homesync=$(homesync-path)
 
+IFS=$'\n'
 for path in $(cat ~/.homesync.manifest); do
-  if [[ $DOTFILES != 1 || $path = "."* || $path = "bin/"* ]]; then
-    homesync-sync $HOME/$path
+  if [[ $DOTFILES != 1 || "$path" = "."* || "$path" = "bin/"* ]]; then
+    homesync-sync "$HOME/$path"
   fi
 done
